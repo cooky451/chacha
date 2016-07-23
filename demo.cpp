@@ -123,7 +123,7 @@ void benchmark()
 	const auto key_data = get_test_key().data();
 
 	// We need to touch each page anyway for the OS to actually map the memory.
-	std::vector<char> buf(256 * 1024 * 1024);
+	std::vector<char> buf(512 * 1024 * 1024);
 
 	chacha::unbuffered_cipher cipher(chacha::key_bits<256>(), key_data, 0);
 
@@ -132,20 +132,23 @@ void benchmark()
 		cipher.transform(buf.data(), buf.data(), buf.size());
 		auto time = float_duration<double>(std::chrono::high_resolution_clock::now() - start);
 		std::cout << "ChaCha20 bandwidth: " << buf.size() / time / 1024 / 1024 << " MiB/s";
+		std::cout << "\t\t" << hexdump{ &buf[buf.size() - 16], 16 } << std::endl;
 	}
 
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		cipher.transform(chacha::cipher_rounds::make<12>(), buf.data(), buf.data(), buf.size());
 		auto time = float_duration<double>(std::chrono::high_resolution_clock::now() - start);
-		std::cout << "ChaCha12 bandwidth: " << buf.size() / time / 1024 / 1024 << " MiB/s\n";
+		std::cout << "ChaCha12 bandwidth: " << buf.size() / time / 1024 / 1024 << " MiB/s";
+		std::cout << "\t\t" << hexdump{ &buf[buf.size() - 16], 16 } << std::endl;
 	}
 	
 	{
 		auto start = std::chrono::high_resolution_clock::now();
 		cipher.transform(chacha::cipher_rounds::make<8>(), buf.data(), buf.data(), buf.size());
 		auto time = float_duration<double>(std::chrono::high_resolution_clock::now() - start);
-		std::cout << "ChaCha8 bandwidth: " << buf.size() / time / 1024 / 1024 << " MiB/s\n";
+		std::cout << "ChaCha8 bandwidth: " << buf.size() / time / 1024 / 1024 << " MiB/s";
+		std::cout << "\t\t" << hexdump{ &buf[buf.size() - 16], 16 } << std::endl;
 	}
 }
 
