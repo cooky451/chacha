@@ -25,6 +25,28 @@ namespace chacha
 		{}
 	};
 
+	class buffered_cipher;
+	/* 
+	 * buffered_cipher(key_bits<KeyBits> kb, const void* key_data, std::uint64_t nonce);
+	 * void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes);
+	 * 
+	 * For this cipher, transform works like a continuous byte stream. It doesn't matter
+	 * if you make three calls to transform() with 10, 10 and 20 bytes or two calls 
+	 * to transform() with 20 and 20 bytes, thre result will be the same.
+	 * The block index will be increased as necessary.
+	 */
+
+
+	class unbuffered_cipher;
+	/*
+	* unbuffered_cipher(key_bits<KeyBits>, const void* key_data, std::uint64_t nonce);
+	* void set_block_index(std::uint64_t block_index);
+	* void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes);
+	*
+	* For this cipher, transform works on blocks of 64 bytes. Every call to transform() will
+	* increase the block index by (bytes / 64 + ((bytes % 64) != 0)).
+	*/
+
 	class unbuffered_cipher
 	{
 		detail::keypad_state _keypad;
