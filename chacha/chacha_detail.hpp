@@ -1,4 +1,28 @@
-#pragma once
+/* 
+ * Copyright (c) 2017 cooky451
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
+#ifndef CHACHA_DETAIL_HPP_43939005
+#define CHACHA_DETAIL_HPP_43939005
 
 #include <cstddef>
 #include <cstdint>
@@ -8,9 +32,13 @@
 #include <array>
 
 #if defined(__SSE2__) || (defined(_MSC_VER) && (defined(_M_X64) || _M_IX86_FP == 2))
-#define CHACHA_SSE2_AVAILABLE
+//#define CHACHA_SSE2_AVAILABLE
+#include <xmmintrin.h>
+#include <emmintrin.h>
 #if defined(__SSSE3__) || (defined(_MSC_VER) && (defined(_M_X64) || _M_IX86_FP == 2))
-#define CHACHA_SSSE3_AVAILABLE
+//#define CHACHA_SSSE3_AVAILABLE
+#include <pmmintrin.h>
+#include <tmmintrin.h>
 #endif
 #endif
 
@@ -111,7 +139,8 @@ namespace chacha
 			std::memcpy(buffer, &value, sizeof value);
 		}
 
-		static void qround(std::uint32_t& r0, std::uint32_t& r1, std::uint32_t& r2, std::uint32_t& r3)
+		static void qround(std::uint32_t& r0,
+			std::uint32_t& r1, std::uint32_t& r2, std::uint32_t& r3)
 		{
 			r3 = rol(r3 ^ (r0 += r1), 16);
 			r1 = rol(r1 ^ (r2 += r3), 12);
@@ -119,7 +148,8 @@ namespace chacha
 			r1 = rol(r1 ^ (r2 += r3), 7);
 		}
 
-		static void transform_xor(keypad_state& key, std::size_t rounds, void* buffer, const void* source)
+		static void transform_xor(keypad_state& key,
+			std::size_t rounds, void* buffer, const void* source)
 		{
 			const auto buf_ptr = static_cast<std::uint32_t*>(buffer);
 			const auto src_ptr = static_cast<const std::uint32_t*>(source);
@@ -141,7 +171,8 @@ namespace chacha
 			auto r14 = key.data[14];
 			auto r15 = key.data[15];
 
-			// assert(rounds % 2 == 0) // Gets enforced through higher level compile-time check.
+			// Gets enforced through higher level compile-time check.
+			// assert(rounds % 2 == 0)
 			for (std::size_t i = rounds / 2; i-- > 0; )
 			{
 				qround(r0, r4, r8, r12);
@@ -155,22 +186,38 @@ namespace chacha
 				qround(r3, r4, r9, r14);
 			}
 
-			memcpy_str(buf_ptr + 0, (r0 + key.data[0]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 0));
-			memcpy_str(buf_ptr + 1, (r1 + key.data[1]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 1));
-			memcpy_str(buf_ptr + 2, (r2 + key.data[2]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 2));
-			memcpy_str(buf_ptr + 3, (r3 + key.data[3]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 3));
-			memcpy_str(buf_ptr + 4, (r4 + key.data[4]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 4));
-			memcpy_str(buf_ptr + 5, (r5 + key.data[5]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 5));
-			memcpy_str(buf_ptr + 6, (r6 + key.data[6]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 6));
-			memcpy_str(buf_ptr + 7, (r7 + key.data[7]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 7));
-			memcpy_str(buf_ptr + 8, (r8 + key.data[8]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 8));
-			memcpy_str(buf_ptr + 9, (r9 + key.data[9]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 9));
-			memcpy_str(buf_ptr + 10, (r10 + key.data[10]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 10));
-			memcpy_str(buf_ptr + 11, (r11 + key.data[11]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 11));
-			memcpy_str(buf_ptr + 12, (r12 + key.data[12]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 12));
-			memcpy_str(buf_ptr + 13, (r13 + key.data[13]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 13));
-			memcpy_str(buf_ptr + 14, (r14 + key.data[14]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 14));
-			memcpy_str(buf_ptr + 15, (r15 + key.data[15]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 15));
+			memcpy_str(
+				buf_ptr + 0, (r0 + key.data[0]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 0));
+			memcpy_str(
+				buf_ptr + 1, (r1 + key.data[1]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 1));
+			memcpy_str(
+				buf_ptr + 2, (r2 + key.data[2]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 2));
+			memcpy_str(
+				buf_ptr + 3, (r3 + key.data[3]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 3));
+			memcpy_str(
+				buf_ptr + 4, (r4 + key.data[4]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 4));
+			memcpy_str(
+				buf_ptr + 5, (r5 + key.data[5]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 5));
+			memcpy_str(
+				buf_ptr + 6, (r6 + key.data[6]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 6));
+			memcpy_str(
+				buf_ptr + 7, (r7 + key.data[7]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 7));
+			memcpy_str(
+				buf_ptr + 8, (r8 + key.data[8]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 8));
+			memcpy_str(
+				buf_ptr + 9, (r9 + key.data[9]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 9));
+			memcpy_str(
+				buf_ptr + 10, (r10 + key.data[10]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 10));
+			memcpy_str(
+				buf_ptr + 11, (r11 + key.data[11]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 11));
+			memcpy_str(
+				buf_ptr + 12, (r12 + key.data[12]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 12));
+			memcpy_str(
+				buf_ptr + 13, (r13 + key.data[13]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 13));
+			memcpy_str(
+				buf_ptr + 14, (r14 + key.data[14]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 14));
+			memcpy_str(
+				buf_ptr + 15, (r15 + key.data[15]) ^ memcpy_ldr<std::uint32_t>(src_ptr + 15));
 
 			key.data[12] += 1;
 		}
@@ -180,7 +227,8 @@ namespace chacha
 		 */
 
 #if !defined(CHACHA_SSE2_AVAILABLE)
-		static void transform_xor_3_blocks(keypad_state& key, std::size_t rounds, void* buffer, const void* source)
+		static void transform_xor_3_blocks(keypad_state& key,
+			std::size_t rounds, void* buffer, const void* source)
 		{
 			const auto buf_ptr = static_cast<std::uint8_t*>(buffer);
 			const auto src_ptr = static_cast<const std::uint8_t*>(source);
@@ -214,13 +262,15 @@ namespace chacha
 		template <>
 		__m128i prold<8>(__m128i v0)
 		{
-			return _mm_shuffle_epi8(v0, _mm_set_epi8(14, 13, 12, 15, 10, 9, 8, 11, 6, 5, 4, 7, 2, 1, 0, 3));
+			return _mm_shuffle_epi8(v0,
+				_mm_set_epi8(14, 13, 12, 15, 10, 9, 8, 11, 6, 5, 4, 7, 2, 1, 0, 3));
 		}
 
 		template <>
 		__m128i prold<16>(__m128i v0)
 		{
-			return _mm_shuffle_epi8(v0, _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
+			return _mm_shuffle_epi8(v0,
+				_mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2));
 		}
 #endif
 		template <std::size_t N>
@@ -242,7 +292,8 @@ namespace chacha
 			v11 = prold<N>(v11);
 		}
 
-		static void transform_xor_3_blocks(keypad_state& key, std::size_t rounds, void* buffer, const void* source)
+		static void transform_xor_3_blocks(keypad_state& key,
+			std::size_t rounds, void* buffer, const void* source)
 		{
 			// Violates strict aliasing, but Intel was apparently not a big fan of ISO-C.
 			// At least they fixed it for AVX2 instructions, which all take void*.
@@ -272,7 +323,8 @@ namespace chacha
 			auto v10 = k2;
 			auto v11 = _mm_add_epi32(v7, _mm_set_epi32(0, 0, 0, 1));
 
-			// assert(rounds % 2 == 0) // Gets enforced through higher level compile-time check.
+			// Gets enforced through higher level compile-time check.
+			// assert(rounds % 2 == 0)
 			for (std::size_t i = rounds / 2; i-- > 0; )
 			{
 				triple_qround<16>(v0, v1, v3, v4, v5, v7, v8, v9, v11);
@@ -345,3 +397,5 @@ namespace chacha
 #endif
 	}
 }
+
+#endif

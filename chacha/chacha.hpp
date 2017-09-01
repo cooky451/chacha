@@ -1,4 +1,28 @@
-#pragma once
+/* 
+ * Copyright (c) 2017 cooky451
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ */
+
+#ifndef CHACHA_HPP_74350828
+#define CHACHA_HPP_74350828
 
 #include "chacha_detail.hpp"
 
@@ -28,7 +52,8 @@ namespace chacha
 	class buffered_cipher;
 	/* 
 	 * buffered_cipher(key_bits<KeyBits> kb, const void* key_data, std::uint64_t nonce);
-	 * void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes);
+	 * void transform(cipher_rounds rounds,
+	 *     void* buffer, const void* source, std::size_t bytes);
 	 * 
 	 * For this cipher, transform works like a continuous byte stream. It doesn't matter
 	 * if you make three calls to transform() with 10, 10 and 20 bytes or two calls 
@@ -41,7 +66,8 @@ namespace chacha
 	/*
 	* unbuffered_cipher(key_bits<KeyBits>, const void* key_data, std::uint64_t nonce);
 	* void set_block_index(std::uint64_t block_index);
-	* void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes);
+	* void transform(cipher_rounds rounds,
+	*     void* buffer, const void* source, std::size_t bytes);
 	*
 	* For this cipher, transform works on blocks of 64 bytes. Every call to transform() will
 	* increase the block index by (bytes / 64 + ((bytes % 64) != 0)).
@@ -67,7 +93,8 @@ namespace chacha
 			transform(cipher_rounds::make<20>(), buffer, source, bytes);
 		}
 
-		void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes)
+		void transform(cipher_rounds rounds,
+			void* buffer, const void* source, std::size_t bytes)
 		{
 			auto buf_ptr = static_cast<std::uint8_t*>(buffer);
 			auto src_ptr = static_cast<const std::uint8_t*>(source);
@@ -90,11 +117,13 @@ namespace chacha
 
 					if (bytes > 64)
 					{
-						detail::transform_xor_3_blocks(_keypad, rounds.rounds, &local_buffer[0], &local_buffer[0]);
+						detail::transform_xor_3_blocks(
+							_keypad, rounds.rounds, &local_buffer[0], &local_buffer[0]);
 					}
 					else
 					{
-						detail::transform_xor(_keypad, rounds.rounds, &local_buffer[0], &local_buffer[0]);
+						detail::transform_xor(
+							_keypad, rounds.rounds, &local_buffer[0], &local_buffer[0]);
 					}
 
 					std::memcpy(buf_ptr, &local_buffer[0], bytes);
@@ -120,7 +149,8 @@ namespace chacha
 			transform(cipher_rounds::make<20>(), buffer, source, bytes);
 		}
 
-		void transform(cipher_rounds rounds, void* buffer, const void* source, std::size_t bytes)
+		void transform(cipher_rounds rounds,
+			void* buffer, const void* source, std::size_t bytes)
 		{
 			auto buf_ptr = static_cast<std::uint8_t*>(buffer);
 			auto src_ptr = static_cast<const std::uint8_t*>(source);
@@ -129,7 +159,9 @@ namespace chacha
 
 			if (rest_bytes > 0)
 			{
-				detail::memxor(buf_ptr, &_buffer[_buffer.size() - _space], src_ptr, rest_bytes);
+				detail::memxor(
+					buf_ptr, &_buffer[_buffer.size() - _space], src_ptr, rest_bytes);
+
 				_space -= rest_bytes;
 				bytes -= rest_bytes;
 				buf_ptr += rest_bytes;
@@ -161,3 +193,5 @@ namespace chacha
 		}
 	};
 }
+
+#endif
