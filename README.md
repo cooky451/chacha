@@ -8,7 +8,7 @@ g++ -Wall -Wextra -pedantic -std=c++14 -O3 -march=native -o demo.exe demo.cpp
 
 Results on my machine (3570k at 4.20 GHz)
 
-With SSE3 (cycles / byte = 4200000000 / (1436 * 1024 * 1024) = ~2.8):
+With SSSE3 (cycles / byte = 4200000000 / (1436 * 1024 * 1024) = ~2.8):
 ```
 Implementation verified.
 ChaCha20    1436 MiB/s          2dedaff3b35afaa7f240cffa33adebba
