@@ -1,25 +1,29 @@
-#### Easy to use, high performance, header only C++ implementation of the ChaCha encryption.
-##### Fallback implementation only uses ISO-C++14.
+#### High performance, header only C++ implementation of the ChaCha encryption.
+##### Fallback implementation only uses ISO-C++17.
 
 Compile with GCC (or any modern compiler) with
 ```
-g++ -Wall -Wextra -pedantic -std=c++14 -O3 -march=native -o demo.exe demo.cpp
+g++ -std=c++17 -pedantic -Wall -O3 -march=corei7 -o demo.exe demo.cpp
 ```
 
-Results on my machine (3570k at 4.20 GHz)
+Results on a 8700K at 4.7 GHz
 
-With SSSE3 (cycles / byte = 4200000000 / (1436 * 1024 * 1024) = ~2.8):
+With SSSE3 (cycles / byte = 4700000000 / (1705 * 1024 * 1024) = ~2.6):
 ```
-Implementation verified.
-ChaCha20    1436 MiB/s          2dedaff3b35afaa7f240cffa33adebba
-ChaCha12    2290 MiB/s          ca53ec6c446135fef8f613fab701a355
-ChaCha8     3242 MiB/s          557ecf29ef3a43552b8fe637d509e9ca
+All tests successful.
+Running benchmarks for 1.5 seconds with buffer size [2097152] including stream xor...
+Name            Bandwidth               NoOptTag
+Chacha20        1705 MiB/s              0bc8f2524959531a9bcaa3cff9628907
+Chacha12        2790 MiB/s              736db4830ac4c4a214f343aa1d3e2178
+Chacha8         4049 MiB/s              fee4b06a7c6abd46005f18b3b507a54c
 ```
 
-With fallback implementation (cycles / byte = 4200000000 / (519 * 1024 * 1024) = ~7.7):
+With fallback implementation (cycles / byte = 4700000000 / (735 * 1024 * 1024) = ~6.1):
 ```
-Implementation verified.
-ChaCha20    519 MiB/s           a602abc2fdd39ac61daee6f0d12fa60f
-ChaCha12    805 MiB/s           e471166c0496a7a3b9f08524d5a80514
-ChaCha8     1104 MiB/s          0e7e80925a433625fac6443f8e53a487
+All tests successful.
+Running benchmarks for 1.5 seconds with buffer size [2097152] including stream xor...
+Name            Bandwidth               NoOptTag
+Chacha20        735 MiB/s               0bc8f2524959531a9bcaa3cff9628907
+Chacha12        1195 MiB/s              736db4830ac4c4a214f343aa1d3e2178
+Chacha8         1578 MiB/s              fee4b06a7c6abd46005f18b3b507a54c
 ```
